@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#069ECF</color>
+    <color name="colorPrimaryDark">#017398</color>
+    <color name="colorAccent">#FFF000</color>
+
+    <color name="textcolorHeader">#069ECF</color>
+    <color name="textColorPrimary">#000000</color>
+    <color name="textColorSecondary">#A5A5A5</color>
+
+    <!--switch color-->
+
+    <color name="thumb_active">#069ECF</color>
+    <color name="track_active">#66069ECF</color>
+
+    <color name="thumb_inactive">#A5A5A5</color>
+    <color name="track_inactive">#66A5A5A5</color>
+
+</resources>

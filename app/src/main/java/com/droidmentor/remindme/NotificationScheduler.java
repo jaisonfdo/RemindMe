@@ -31,14 +31,14 @@ public class NotificationScheduler
         Calendar calendar = Calendar.getInstance();
 
         Calendar setcalendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, min);
-        calendar.set(Calendar.SECOND, 0);
+        setcalendar.set(Calendar.HOUR_OF_DAY, hour);
+        setcalendar.set(Calendar.MINUTE, min);
+        setcalendar.set(Calendar.SECOND, 0);
 
         // cancel already scheduled reminders
         cancelReminder(context,cls);
 
-        if(calendar.getTimeInMillis()<setcalendar.getTimeInMillis())
+        if(setcalendar.before(calendar))
             setcalendar.add(Calendar.DATE,1);
 
         // Enable a receiver
@@ -54,7 +54,7 @@ public class NotificationScheduler
         Intent intent1 = new Intent(context, cls);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, DAILY_REMINDER_REQUEST_CODE, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, setcalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
 
     }
 
@@ -102,4 +102,5 @@ public class NotificationScheduler
         notificationManager.notify(DAILY_REMINDER_REQUEST_CODE, notification);
 
     }
+
 }

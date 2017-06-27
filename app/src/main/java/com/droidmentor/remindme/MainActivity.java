@@ -2,6 +2,7 @@ package com.droidmentor.remindme;
 
 import android.annotation.TargetApi;
 import android.app.TimePickerDialog;
+import android.content.ClipboardManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,23 +15,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    String TAG="RemindMe";
+    String TAG = "RemindMe";
     LocalData localData;
 
     SwitchCompat reminderSwitch;
     TextView tvTime;
 
-    LinearLayout ll_set_time;
+    LinearLayout ll_set_time, ll_terms;
 
-    int hour,min;
+    int hour, min;
 
-    public static final int DAILY_REMINDER_REQUEST_CODE=100;
+    ClipboardManager myClipboard;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,37 +42,35 @@ public class MainActivity extends AppCompatActivity {
 
         localData = new LocalData(getApplicationContext());
 
-        ll_set_time=(LinearLayout)findViewById(R.id.ll_set_time);
-        tvTime=(TextView)findViewById(R.id.tv_reminder_time_desc);
+        myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
-        reminderSwitch=(SwitchCompat)findViewById(R.id.timerSwitch);
+        ll_set_time = (LinearLayout) findViewById(R.id.ll_set_time);
+        ll_terms = (LinearLayout) findViewById(R.id.ll_terms);
 
-        hour=localData.get_hour();
-        min=localData.get_min();
+        tvTime = (TextView) findViewById(R.id.tv_reminder_time_desc);
 
-        tvTime.setText(getFormatedTime(hour,min));
+        reminderSwitch = (SwitchCompat) findViewById(R.id.timerSwitch);
+
+        hour = localData.get_hour();
+        min = localData.get_min();
+
+        tvTime.setText(getFormatedTime(hour, min));
         reminderSwitch.setChecked(localData.getReminderStatus());
 
-        if(!localData.getReminderStatus())
+        if (!localData.getReminderStatus())
             ll_set_time.setAlpha(0.4f);
 
-        reminderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
+        reminderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 localData.setReminderStatus(isChecked);
-                if(isChecked)
-                {
+                if (isChecked) {
                     Log.d(TAG, "onCheckedChanged: true");
-                    NotificationScheduler.setReminder(MainActivity.this,AlarmReceiver.class,localData.get_hour(),localData.get_min());
+                    NotificationScheduler.setReminder(MainActivity.this, AlarmReceiver.class, localData.get_hour(), localData.get_min());
                     ll_set_time.setAlpha(1f);
-                }
-
-                else
-                {
+                } else {
                     Log.d(TAG, "onCheckedChanged: false");
-                    NotificationScheduler.cancelReminder(MainActivity.this,AlarmReceiver.class);
+                    NotificationScheduler.cancelReminder(MainActivity.this, AlarmReceiver.class);
                     ll_set_time.setAlpha(0.4f);
                 }
 
@@ -79,12 +80,22 @@ public class MainActivity extends AppCompatActivity {
         ll_set_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(localData.getReminderStatus())
-                   showTimePickerDialog(localData.get_hour(),localData.get_min());
+                if (localData.getReminderStatus())
+                    showTimePickerDialog(localData.get_hour(), localData.get_min());
             }
         });
 
+        ll_terms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+
+
     }
+
 
     private void showTimePickerDialog(int h, int m) {
 
@@ -99,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "onTimeSet: min " + min);
                         localData.set_hour(hour);
                         localData.set_min(min);
-                        tvTime.setText(getFormatedTime(hour,min));
-                        NotificationScheduler.setReminder(MainActivity.this,AlarmReceiver.class,localData.get_hour(),localData.get_min());
+                        tvTime.setText(getFormatedTime(hour, min));
+                        NotificationScheduler.setReminder(MainActivity.this, AlarmReceiver.class, localData.get_hour(), localData.get_min());
 
 
                     }
@@ -111,22 +122,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public String getFormatedTime(int h,int m)
-    {
+    public String getFormatedTime(int h, int m) {
         final String OLD_FORMAT = "HH:mm";
         final String NEW_FORMAT = "hh:mm a";
 
-        String oldDateString = h+":"+m;
-        String newDateString="";
+        String oldDateString = h + ":" + m;
+        String newDateString = "";
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(OLD_FORMAT,getCurrentLocale());
+            SimpleDateFormat sdf = new SimpleDateFormat(OLD_FORMAT, getCurrentLocale());
             Date d = sdf.parse(oldDateString);
             sdf.applyPattern(NEW_FORMAT);
             newDateString = sdf.format(d);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -134,10 +142,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @TargetApi(Build.VERSION_CODES.N)
-    public Locale getCurrentLocale(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+    public Locale getCurrentLocale() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return getResources().getConfiguration().getLocales().get(0);
-        } else{
+        } else {
             //noinspection deprecation
             return getResources().getConfiguration().locale;
         }
